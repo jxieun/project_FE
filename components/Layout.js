@@ -25,8 +25,8 @@ const Layout = () => {
       <Navbar>
         <NavItem as={Link} to="/">홈</NavItem>
         <NavItem as={Link} to="/diary">나의 직관일지</NavItem>
-        <NavItem href="#">익사이팅존</NavItem>
-        <NavItem href="#">직관 가이드</NavItem>
+        <NavItem as={Link} to="/excitingzone">익사이팅존</NavItem>
+        <NavItem as={Link} to="/guidezone">직관 가이드</NavItem>
       </Navbar>
 
       {/* 페이지별 콘텐츠 */}

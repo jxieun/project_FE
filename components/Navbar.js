@@ -29,6 +29,7 @@ const Navbar = () => {
       <NavItem to="/">홈</NavItem>
       <NavItem to="/diary">나의 직관일지</NavItem>
       <NavItem to="/login">로그인</NavItem>
+      <NavItem to="/excitingzone">익사이팅존</NavItem>
     </NavContainer>
   );
 };

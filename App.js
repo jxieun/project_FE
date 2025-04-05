@@ -5,6 +5,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Diary from "./pages/Diary";
 import SignUp from "./pages/SignUp";
+import ExcitingZone from './pages/ExcitingZone';
+import GuideZone from './pages/GuideZone';
+import StadiumDetail from "./components/StadiumDetail";
 
 function App() {
   return (
@@ -13,9 +16,12 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="diary" element={<Diary />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<SignUp />} />
+          <Route path="excitingzone" element={<ExcitingZone />} />
+          <Route path="/guidezone" element={<GuideZone />} />
+          <Route path="/stadium/:id" element={<StadiumDetail />} />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </Router>
   );
