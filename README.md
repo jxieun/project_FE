@@ -1,3 +1,9 @@
+4/6 코드 수정
+1. 나의 직관일지 페이지 수정
+2. 익사이팅 존 페이지 초안 생성
+3. 가이드존 페이지 초안 생성
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
