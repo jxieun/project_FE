@@ -1,14 +1,16 @@
-import React from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react"; 
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { ThemeContext } from "../context/ThemeContext"; // 경로 맞게 조정
 
 const NavContainer = styled.nav`
   display: flex;
   justify-content: center;
-  background-color: #f0f0f0;
+  background-color: ${({ bg }) => bg || "#f0f0f0"};
   padding: 10px;
   margin-top: 10px;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
 `;
 
 const NavItem = styled(Link)`
@@ -40,6 +42,7 @@ const Button = styled.button`
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const { gradient } = useContext(ThemeContext); // ✅ 내부로 옮김
 
   useEffect(() => {
     const user = localStorage.getItem("loggedInUser");
@@ -52,13 +55,12 @@ const Navbar = () => {
     localStorage.removeItem("loggedInUser");
     setLoggedInUser(null);
     navigate("/");
-    window.location.reload(); // 👉 상태를 강제로 재확인 (필요 시)
+    window.location.reload(); // 강제 리렌더링
   };
-  
 
   return (
-    <NavContainer>
-      <NavItem to="/profile">내 정보</NavItem>      
+    <NavContainer bg={gradient}>
+      <NavItem to="/profile">내 정보</NavItem>
       <NavItem to="/">홈</NavItem>
       <NavItem to="/diary">나의 직관일지</NavItem>
       <NavItem to="/excitingzone">익사이팅존</NavItem>
