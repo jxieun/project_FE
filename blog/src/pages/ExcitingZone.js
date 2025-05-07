@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 // ✅ 퀴즈 데이터
@@ -9,20 +10,65 @@ const quizData = [
 ];
 
 // ✅ styled-components
-const Container = styled.div`display: flex; justify-content: center; padding: 30px;`;
-const LeftPanel = styled.div`flex: 1; background: #eee; padding: 20px; display: flex; justify-content: center; align-items: center;`;
-const RightPanel = styled.div`flex: 1; background: #eee; padding: 20px; display: flex; flex-direction: column; align-items: center;`;
-const Input = styled.input`font-size: 20px; padding: 10px; margin-bottom: 10px;`;
-const Button = styled.button`font-size: 18px; padding: 8px 16px; margin: 5px; cursor: pointer;`;
-const ScoreText = styled.h3`margin-top: 20px;`;
-const QuizImage = styled.img`max-width: 300px; max-height: 300px;`;
-const TimerText = styled.div`font-size: 18px; font-weight: bold; margin-top: 10px; color: red;`;
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+`;
+
+const LeftPanel = styled.div`
+  flex: 1;
+  background: #eee;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const RightPanel = styled.div`
+  flex: 1;
+  background: #eee;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  font-size: 20px;
+  padding: 10px;
+  margin-bottom: 10px;
+`;
+
+const Button = styled.button`
+  font-size: 18px;
+  padding: 8px 16px;
+  margin: 5px;
+  cursor: pointer;
+`;
+
+const ScoreText = styled.h3`
+  margin-top: 20px;
+`;
+
+const QuizImage = styled.img`
+  max-width: 300px;
+  max-height: 300px;
+`;
+
+const TimerText = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: red;
+`;
 
 const shuffleArray = (array) => {
   return [...array].sort(() => Math.random() - 0.5);
 };
 
 const ExcitingZone = () => {
+  const navigate = useNavigate();
   const [gameStarted, setGameStarted] = useState(false);
   const [quizList, setQuizList] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -123,13 +169,20 @@ const ExcitingZone = () => {
       <RightPanel>
         {!gameStarted && (
           <>
+            {/* 👇 팬 랭킹 버튼 추가 */}
+            <div style={{ marginBottom: "20px" }}>
+              <Button onClick={() => navigate("/ranking")}>🏆 팬 랭킹 보기</Button>
+            </div>
+
             <h3>퀴즈 주제 선택</h3>
             <div>
               {["인물", "응원가", "등번호", "용어/룰"].map((topic) => (
                 <Button
                   key={topic}
                   onClick={() => setSelectedTopic(topic)}
-                  style={{ backgroundColor: selectedTopic === topic ? "#aaa" : undefined }}
+                  style={{
+                    backgroundColor: selectedTopic === topic ? "#aaa" : undefined,
+                  }}
                 >
                   {topic}
                 </Button>
@@ -140,13 +193,17 @@ const ExcitingZone = () => {
             <div>
               <Button
                 onClick={() => setQuizType("subjective")}
-                style={{ backgroundColor: quizType === "subjective" ? "#aaa" : undefined }}
+                style={{
+                  backgroundColor: quizType === "subjective" ? "#aaa" : undefined,
+                }}
               >
                 주관식
               </Button>
               <Button
                 onClick={() => setQuizType("objective")}
-                style={{ backgroundColor: quizType === "objective" ? "#aaa" : undefined }}
+                style={{
+                  backgroundColor: quizType === "objective" ? "#aaa" : undefined,
+                }}
               >
                 객관식
               </Button>
@@ -158,7 +215,9 @@ const ExcitingZone = () => {
                 <Button
                   key={i + 1}
                   onClick={() => setTimer(i + 1)}
-                  style={{ backgroundColor: timer === i + 1 ? "#aaa" : undefined }}
+                  style={{
+                    backgroundColor: timer === i + 1 ? "#aaa" : undefined,
+                  }}
                 >
                   {i + 1}
                 </Button>
@@ -197,7 +256,11 @@ const ExcitingZone = () => {
         {!gameStarted && <Button onClick={startGame}>시작</Button>}
         {gameOver && (
           <>
-            {showAnswer && <p>정답은: <strong>{showAnswer}</strong></p>}
+            {showAnswer && (
+              <p>
+                정답은: <strong>{showAnswer}</strong>
+              </p>
+            )}
             <Button onClick={startGame}>다시 시작</Button>
             <Button onClick={resetGame}>처음으로</Button>
           </>
