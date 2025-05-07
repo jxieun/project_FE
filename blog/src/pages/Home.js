@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   MainContent,
   Sidebar,
@@ -10,7 +10,10 @@ import {
 } from "../styles";
 
 import TeamSelector from "./TeamSelector";
-import PlayerSelector from "./PlayerSelector"; // 새로 만든 선수 선택 컴포넌트 import
+import PlayerSelector from "./PlayerSelector";
+
+// ✅ ThemeContext import
+import { ThemeContext } from "../context/ThemeContext";
 
 const Home = () => {
   const [isSelectorVisible, setSelectorVisible] = useState(false);
@@ -18,20 +21,32 @@ const Home = () => {
   const [myTeam, setMyTeam] = useState(null);
   const [myPlayer, setMyPlayer] = useState(null);
 
+  // ✅ 테마 관련 state/context
+  const { setThemeColor, gradient } = useContext(ThemeContext);
+
   // localStorage에서 초기 데이터 로드
   useEffect(() => {
     const savedTeam = localStorage.getItem("myTeam");
     const savedPlayer = localStorage.getItem("myPlayer");
-    if (savedTeam) setMyTeam(JSON.parse(savedTeam));
+
+    if (savedTeam) {
+      const parsedTeam = JSON.parse(savedTeam);
+      setMyTeam(parsedTeam);
+      setThemeColor(parsedTeam.color); // ✅ 초기 로드 시 테마도 반영
+    }
+
     if (savedPlayer) setMyPlayer(savedPlayer);
-  }, []);
+  }, [setThemeColor]);
 
   // 팀 선택 핸들러
   const handleTeamSelect = (team) => {
     setMyTeam(team);
     localStorage.setItem("myTeam", JSON.stringify(team));
 
-    // 팀이 변경되면 MY 선수 초기화
+    // ✅ 선택한 팀 색으로 테마 업데이트
+    setThemeColor(team.color);
+
+    // 팀 변경 시 선수 초기화
     setMyPlayer(null);
     localStorage.removeItem("myPlayer");
   };
@@ -43,9 +58,9 @@ const Home = () => {
   };
 
   return (
-    <MainContent>
+    <MainContent style={{ background: gradient, minHeight: "100vh" }}>
       {/* 순위표 */}
-      <Sidebar>
+      <Sidebar style={{ background: gradient }}>
         <Rankings>
           <h3>순위표</h3>
           <ul>
@@ -58,34 +73,35 @@ const Home = () => {
 
       {/* MY 팀 & MY 선수 */}
       <div>
-      <MyTeam onClick={() => setSelectorVisible(true)} style={{ cursor: "pointer" }}>
-  <div>
-    MY 팀: {myTeam ? myTeam.name : "선택한 팀이 없습니다."}
-  </div>
-  {myTeam && (
-    <div style={{ marginTop: "10px" }}>
-      <img
-        src={myTeam.logo}
-        alt={myTeam.name}
-        style={{ width: "100px" }}
-      />
-    </div>
-  )}
-</MyTeam>
-<MyPlayer onClick={() => setPlayerSelectorVisible(true)} style={{ cursor: "pointer" }}>
-  <div>
-    MY 선수: {myPlayer ? myPlayer : "선택한 선수가 없습니다."}
-  </div>
-  {myPlayer && (
-    <div style={{ marginTop: "10px" }}>
-      <img
-        src={`/assets/players/${myPlayer}.png`}
-        alt={myPlayer}
-        style={{ width: "100px" }}
-      />
-    </div>
-  )}
-</MyPlayer>
+        <MyTeam onClick={() => setSelectorVisible(true)} style={{ cursor: "pointer" }}>
+          <div>
+            MY 팀: {myTeam ? myTeam.name : "선택한 팀이 없습니다."}
+          </div>
+          {myTeam && (
+            <div style={{ marginTop: "10px" }}>
+              <img
+                src={myTeam.logo}
+                alt={myTeam.name}
+                style={{ width: "100px" }}
+              />
+            </div>
+          )}
+        </MyTeam>
+
+        <MyPlayer onClick={() => setPlayerSelectorVisible(true)} style={{ cursor: "pointer" }}>
+          <div>
+            MY 선수: {myPlayer ? myPlayer : "선택한 선수가 없습니다."}
+          </div>
+          {myPlayer && (
+            <div style={{ marginTop: "10px" }}>
+              <img
+                src={`/assets/players/${myPlayer}.png`}
+                alt={myPlayer}
+                style={{ width: "100px" }}
+              />
+            </div>
+          )}
+        </MyPlayer>
       </div>
 
       {/* 경기 일정 */}
