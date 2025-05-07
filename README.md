@@ -20,6 +20,9 @@ blog 파일 사용!
 7. 익사이팅존 오답 시 정답 알려주도록 수정
 8. 직관 가이드 구장 팁 페이지 생성(페이지만 생성, 내용은 X)
 
+1. 팀 선택 시 테마 변경(임시)
+2. 팬 랭킹, 이달의 팬 부분 임시로 제작
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
