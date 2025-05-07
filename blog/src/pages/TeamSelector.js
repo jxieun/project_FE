@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useContext } from "react";
+import { ThemeContext } from "../context/ThemeContext"; // 경로 확인!
 
 const teams = [
   {
@@ -262,6 +264,7 @@ const CancelButton = styled(ConfirmButton)`
 const TeamSelector = ({ visible, onClose, onSelect }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const { setThemeColor } = useContext(ThemeContext); // 🎯 테마색 설정 함수 가져오기
 
   const next = () => {
     setCurrentIndex((prev) => (prev + 1) % teams.length);
@@ -273,7 +276,8 @@ const TeamSelector = ({ visible, onClose, onSelect }) => {
 
   const handleConfirm = () => {
     if (!selectedTeam) return alert("팀을 선택해주세요.");
-    onSelect(selectedTeam);
+    setThemeColor(selectedTeam.color); // ✅ 팀 색상 적용
+    onSelect(selectedTeam); // 기존 myTeam 저장
     onClose();
   };
 
@@ -282,6 +286,7 @@ const TeamSelector = ({ visible, onClose, onSelect }) => {
     teams[currentIndex],
     teams[(currentIndex + 1) % teams.length],
   ];
+
 
   return (
     <ModalOverlay visible={visible}>
