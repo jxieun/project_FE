@@ -1,33 +1,30 @@
 import React, { useState, useEffect, useMemo } from "react";
-import "./Calendar.css"; // 스타일 적용
+import "./Calendar.css";
+import DiaryForm from "./DiaryForm"; // 기존 DiaryForm 연동
 
 const Calendar = () => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [diaryEntries, setDiaryEntries] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [showList, setShowList] = useState(false);
 
-  // ✅ 일기 데이터를 localStorage에서 불러오기
   useEffect(() => {
-    const savedEntries = JSON.parse(localStorage.getItem("diaryEntries")) || {};
-    setDiaryEntries(savedEntries);
+    const saved = JSON.parse(localStorage.getItem("diaryEntries")) || {};
+    setDiaryEntries(saved);
   }, []);
 
-  // ✅ 일기 데이터를 localStorage에 저장
   useEffect(() => {
     localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
   }, [diaryEntries]);
 
-  // ✅ 해당 월의 날짜 수 계산
   const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
-
-  // ✅ 해당 월의 첫째 날 요일 (0: 일요일 ~ 6: 토요일)
   const getFirstDayOfMonth = (year, month) => new Date(year, month - 1, 1).getDay();
 
-  // ✅ 연도 변경 함수
   const handleYearChange = (offset) => setYear((prev) => prev + offset);
 
-  // ✅ 월 변경 함수 (연도와 연동)
   const handleMonthChange = (offset) => {
     setMonth((prev) => {
       let newMonth = prev + offset;
@@ -42,31 +39,33 @@ const Calendar = () => {
     });
   };
 
-  // ✅ 특정 날짜 클릭 시 일기 입력
   const handleDateClick = (day) => {
     const dateKey = `${year}-${month}-${day}`;
-    const text = prompt("일기 내용을 입력하세요:", diaryEntries[dateKey] || "");
-    if (text !== null) {
-      setDiaryEntries((prev) => ({
-        ...prev,
-        [dateKey]: text.trim() ? text : undefined,
-      }));
-    }
+    setSelectedDate(dateKey);
+    setShowForm(true);
   };
 
-  // ✅ 달력 렌더링 최적화 (useMemo 사용)
+  const handleSave = (date, entry) => {
+    setDiaryEntries((prev) => ({ ...prev, [date]: entry }));
+    setShowForm(false);
+  };
+
+  const handleDelete = (date) => {
+    const updated = { ...diaryEntries };
+    delete updated[date];
+    setDiaryEntries(updated);
+  };
+
   const calendarData = useMemo(() => {
     const daysInMonth = getDaysInMonth(year, month);
     const firstDay = getFirstDayOfMonth(year, month);
     const weeks = [];
     let days = [];
 
-    // ✅ 빈 칸 추가 (첫 날의 요일 맞추기)
     for (let i = 0; i < firstDay; i++) {
       days.push(<td key={`empty-${i}`} className="empty"></td>);
     }
 
-    // ✅ 날짜 추가
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${year}-${month}-${day}`;
       days.push(
@@ -79,19 +78,17 @@ const Calendar = () => {
         </td>
       );
 
-      // ✅ 한 주가 7일이 되면 새로운 줄 추가
       if (days.length === 7) {
         weeks.push(<tr key={weeks.length}>{days}</tr>);
         days = [];
       }
     }
 
-    // ✅ 마지막 주의 빈 칸 채우기
     if (days.length > 0) {
       while (days.length < 7) {
-        days.push(<td key={`extra-${days.length}`} className="empty"></td>);
+        days.push(<td key={`fill-${days.length}`} className="empty"></td>);
       }
-      weeks.push(<tr key={weeks.length}>{days}</tr>);
+      weeks.push(<tr key="last">{days}</tr>);
     }
 
     return weeks;
@@ -100,7 +97,7 @@ const Calendar = () => {
   return (
     <div className="calendar-container">
       <h2>📅 나의 직관일지</h2>
-      
+
       <div className="calendar-controls">
         <button onClick={() => handleYearChange(-1)}>◀</button>
         <span>{year}년</span>
@@ -127,6 +124,53 @@ const Calendar = () => {
         </thead>
         <tbody>{calendarData}</tbody>
       </table>
+
+      <button style={{ marginTop: "20px" }} onClick={() => setShowList(true)}>
+        📖 일기 리스트 보기
+      </button>
+
+      {showForm && selectedDate && (
+        <DiaryForm
+          date={selectedDate}
+          initial={diaryEntries[selectedDate]}
+          onSave={handleSave}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
+
+      {showList && (
+        <div className="diary-list-modal">
+          <div className="diary-list-box">
+            <h3>📝 작성한 일기 목록</h3>
+            {Object.keys(diaryEntries).length === 0 ? (
+              <p>작성된 일기가 없습니다.</p>
+            ) : (
+              <ul>
+                {Object.entries(diaryEntries).map(([date, entry]) => (
+                  <li key={date}>
+                    <strong>{date}</strong> - {entry.title || "제목 없음"}
+                    <button
+                      onClick={() => handleDelete(date)}
+                      style={{
+                        marginLeft: "10px",
+                        background: "red",
+                        color: "white",
+                        border: "none",
+                        padding: "4px 10px",
+                        cursor: "pointer",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button onClick={() => setShowList(false)}>닫기</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
