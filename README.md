@@ -25,6 +25,11 @@ blog 파일 사용!
 2. 팬 랭킹, 이달의 팬 부분 임시로 제작
 3. 퀴즈 인물 3명 임시 이미지 추가(김하성, 류현진, 이정후)
 
+- 추가
+  1. DiaryForm.js 코드 추가(직관일지 작성 폼)
+  2. 직관일지 작성 폼 수정(제목/내용/파일 선택: 이미지 추가 가능)
+  3. 일기 리스트 보기 및 삭제 기능 추가
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
