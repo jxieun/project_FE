@@ -33,6 +33,7 @@ blog 파일 사용!
 - 추가
 1. 직관일지 보기 기능 추가
 2. 직관 가이드/가이드존 리뷰 작성 폼 수정
+3. 탭 이름 수정(index.html)
 
 # Getting Started with Create React App
 
