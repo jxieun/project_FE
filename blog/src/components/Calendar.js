@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
+import DiaryForm from "./DiaryForm";
+import ViewDiaryForm from "./ViewDiary";
 import "./Calendar.css";
-import DiaryForm from "./DiaryForm"; // 기존 DiaryForm 연동
 
 const Calendar = () => {
   const today = new Date();
@@ -8,20 +9,20 @@ const Calendar = () => {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [diaryEntries, setDiaryEntries] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [viewingDate, setViewingDate] = useState(null);
   const [showList, setShowList] = useState(false);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("diaryEntries")) || {};
-    setDiaryEntries(saved);
+    const savedEntries = JSON.parse(localStorage.getItem("diaryEntries")) || {};
+    setDiaryEntries(savedEntries);
   }, []);
 
   useEffect(() => {
     localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
   }, [diaryEntries]);
 
-  const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
-  const getFirstDayOfMonth = (year, month) => new Date(year, month - 1, 1).getDay();
+  const getDaysInMonth = (y, m) => new Date(y, m, 0).getDate();
+  const getFirstDayOfMonth = (y, m) => new Date(y, m - 1, 1).getDay();
 
   const handleYearChange = (offset) => setYear((prev) => prev + offset);
 
@@ -42,18 +43,22 @@ const Calendar = () => {
   const handleDateClick = (day) => {
     const dateKey = `${year}-${month}-${day}`;
     setSelectedDate(dateKey);
-    setShowForm(true);
   };
 
-  const handleSave = (date, entry) => {
-    setDiaryEntries((prev) => ({ ...prev, [date]: entry }));
-    setShowForm(false);
+  const handleSave = (date, data) => {
+    setDiaryEntries((prev) => ({
+      ...prev,
+      [date]: data,
+    }));
+    setSelectedDate(null);
   };
 
   const handleDelete = (date) => {
-    const updated = { ...diaryEntries };
-    delete updated[date];
-    setDiaryEntries(updated);
+    if (window.confirm("정말 삭제하시겠습니까?")) {
+      const updated = { ...diaryEntries };
+      delete updated[date];
+      setDiaryEntries(updated);
+    }
   };
 
   const calendarData = useMemo(() => {
@@ -86,9 +91,9 @@ const Calendar = () => {
 
     if (days.length > 0) {
       while (days.length < 7) {
-        days.push(<td key={`fill-${days.length}`} className="empty"></td>);
+        days.push(<td key={`extra-${days.length}`} className="empty"></td>);
       }
-      weeks.push(<tr key="last">{days}</tr>);
+      weeks.push(<tr key={weeks.length}>{days}</tr>);
     }
 
     return weeks;
@@ -125,51 +130,54 @@ const Calendar = () => {
         <tbody>{calendarData}</tbody>
       </table>
 
-      <button style={{ marginTop: "20px" }} onClick={() => setShowList(true)}>
-        📖 일기 리스트 보기
-      </button>
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <button onClick={() => setShowList((prev) => !prev)}>
+          {showList ? "일기 리스트 닫기" : "일기 리스트 보기"}
+        </button>
+      </div>
 
-      {showForm && selectedDate && (
+      {showList && (
+        <div className="diary-list">
+          <h3>📝 작성한 직관일지 목록</h3>
+          {Object.keys(diaryEntries).length > 0 ? (
+            Object.entries(diaryEntries).map(([date, entry]) => (
+              <div key={date} className="diary-entry">
+                <strong>{date}</strong>
+                <button
+                  style={{ backgroundColor: "#4CAF50", color: "white", marginLeft: "10px" }}
+                  onClick={() => setViewingDate(date)}
+                >
+                  보기
+                </button>
+                <button
+                  style={{ backgroundColor: "#f44336", color: "white", marginLeft: "5px" }}
+                  onClick={() => handleDelete(date)}
+                >
+                  삭제
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>작성된 직관일지가 없습니다.</p>
+          )}
+        </div>
+      )}
+
+      {selectedDate && (
         <DiaryForm
           date={selectedDate}
           initial={diaryEntries[selectedDate]}
           onSave={handleSave}
-          onCancel={() => setShowForm(false)}
+          onCancel={() => setSelectedDate(null)}
         />
       )}
 
-      {showList && (
-        <div className="diary-list-modal">
-          <div className="diary-list-box">
-            <h3>📝 작성한 일기 목록</h3>
-            {Object.keys(diaryEntries).length === 0 ? (
-              <p>작성된 일기가 없습니다.</p>
-            ) : (
-              <ul>
-                {Object.entries(diaryEntries).map(([date, entry]) => (
-                  <li key={date}>
-                    <strong>{date}</strong> - {entry.title || "제목 없음"}
-                    <button
-                      onClick={() => handleDelete(date)}
-                      style={{
-                        marginLeft: "10px",
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        padding: "4px 10px",
-                        cursor: "pointer",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      삭제
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <button onClick={() => setShowList(false)}>닫기</button>
-          </div>
-        </div>
+      {viewingDate && (
+        <ViewDiaryForm
+          date={viewingDate}
+          data={diaryEntries[viewingDate]}
+          onClose={() => setViewingDate(null)}
+        />
       )}
     </div>
   );
